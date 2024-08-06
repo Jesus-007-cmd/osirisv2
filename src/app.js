@@ -6,7 +6,7 @@ const OAuth2Strategy = require('passport-oauth2').Strategy;
 const bodyParser = require('body-parser');
 const cors = require('cors');
 
-//const auth = passport.authenticate('jwt', { session: false });
+// Importar controladores y middleware
 const errorHandler = require('./middlewares/errorHandler');
 const companyController = require('./controllers/companyController'); 
 const cargoEmpresaController = require('./controllers/cargoEmpresaController'); 
@@ -18,8 +18,6 @@ const sedeController = require('./controllers/sedeController');
 const paisController = require('./controllers/paisController');
 const personaController = require('./controllers/personaController');
 
-
-
 const app = express();
 app.use(express.json()); 
 app.use(bodyParser.json());
@@ -29,44 +27,14 @@ app.use(cors());
 const port = process.env.PORT || 3000;
 
 // Conectar a MongoDB
-const mongoURI = process.env.URI || 'mongodb://127.0.0.1:27017/isodb';
+const mongoURI = process.env.NODE_ENV === 'production' ? process.env.MONGO_URI_PROD : process.env.URI;
 mongoose.connect(mongoURI, { useNewUrlParser: true, useUnifiedTopology: true });
 
 const db = mongoose.connection;
 db.on('error', console.error.bind(console, 'connection error:'));
-db.once('open', async function() {
+db.once('open', function() {
   console.log('Connected to the database');
-
-  // Crear esquema y modelo de ejemplo
-  const userSchema = new mongoose.Schema({
-    name: String,
-    email: String,
-    password: String
-  });
-
-  const User = mongoose.model('User', userSchema);
-
-/*
-/*
-// Esta sección de código inserta usuarios iniciales si no existen.
-// Se elimina porque la lógica de inserción de datos iniciales puede ser innecesaria
-// Se crea un archivo en raiz para insertar datos llamado initializeDatabase.js
-// se manda llamar con comando  npm run init-db
-// En json se creo   "init-db": "node initializeDatabase.js", para poder ejecutarlo
-  // Insertar datos iniciales si no existen
-  try {
-    const count = await User.countDocuments();
-    if (count === 0) {
-      await User.insertMany([
-        { name: 'John Doe', email: 'john@example.com', password: '123456' },
-        { name: 'Jane Doe', email: 'jane@example.com', password: '123456' }
-      ]);
-      console.log('Initial data inserted');
-    }
-  } catch (err) {
-    console.error(err);
-  }*/
-}); 
+});
 
 // Configurar estrategia de autenticación OAuth2
 passport.use(
